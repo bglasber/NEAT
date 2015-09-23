@@ -7,6 +7,7 @@ import java.util.List;
 public class EvolutionOptimizer {
 
 	private List<NeuralNetwork> networks;
+	private List<NeuralNetwork> nextGeneration;
 	private TestCases testCases;
 	private double acceptableFitnessLevel;
 	private List<Species> species;
@@ -24,7 +25,16 @@ public class EvolutionOptimizer {
 			if( i == 0 ) {
 				species.add(new Species(nn));
 			} else {
-				species.get(0).addNetworkIfSpeciesMatch(nn);
+				boolean addedToExistingSpecies = false;
+				for(Species spec : species ) {
+					if( spec.addNetworkIfSpeciesMatch(nn) ){
+						addedToExistingSpecies = true;
+						break;
+					}
+				}
+				if( !addedToExistingSpecies ){
+					species.add(new Species(nn));
+				}
 			}
 			networks.add(nn);
 		}
@@ -37,16 +47,18 @@ public class EvolutionOptimizer {
 		FitnessEvaluator eval = new FitnessEvaluator(networks, func);
 		networks = eval.rankAllNetworks(testCases.getInputs(), testCases.getExpectedOutputs());
 		Iterator<NeuralNetwork> it = networks.iterator();
-		List<NeuralNetwork> nextGeneration = new LinkedList<>();
+		nextGeneration = new LinkedList<>();
 		//TODO:  Need to generate crossovers, do perturbance, calculate descendants, etc.
 		// 25% of surviving networks are permutations
 		for( int i = 0; i < populationSize * 0.25; i++ ){
-			NeuralNetwork network = it.next().cloneNetwork();	
-			if( MathTools.getPercent() <= 0.03 ){
-				network.addNewNode();
-			} else if( MathTools.getPercent() <= 0.05 ){
+			NeuralNetwork orig = it.next();
+			NeuralNetwork network = orig.cloneNetwork();
+			if( MathTools.getPercent() <= 0.3 ){
 				network.addNewLink();
-			}
+			} 
+			if( MathTools.getPercent() <= 0.2 ){
+				network.addNewNode();
+			} 
 			if( MathTools.getPercent() <= 0.8 ){
 				network.perturb();
 			}
@@ -54,25 +66,49 @@ public class EvolutionOptimizer {
 		}
 		for(Species spec : species){
 			// Most fit network in a species of greater than 5 goes to the next round, unchanged
-			if( spec.getNumNetworksInSpecies() > 5 ){
+			//if( spec.getNumNetworksInSpecies() > 5 ){
 				NeuralNetwork network = spec.getMostFitNetwork();
 				nextGeneration.add( network.cloneNetwork() );
-			}
+			//}
 		}
 		
+		it = networks.iterator();
 		//Breed species until we hit this cap
 		while( nextGeneration.size() < populationSize ){
-			//Iterate over ranked networks, roll dice to see if I crossover with another species
-			//Else breed with everything in my species
+			if( !it.hasNext() ) {
+				break;
+			}
+			if( MathTools.getPercent() < 0.003 ){
+				//Interspecies!
+			} else {
+				//Intraspecies!
+				NeuralNetwork n = it.next();
+				nextGeneration.addAll( n.getSpecies().breedAll( n ) );
+				
+			}
 		}
-		
-		//Wipe out all old species, redivide everything into new species
-		//Speciate()
-		
-		
+		species.clear();
+		boolean first = true;
+		for( NeuralNetwork n : nextGeneration ){
+			if( first ) {
+				species.add(new Species(n));
+				first = false;
+			} else {
+				boolean addedToExistingSpecies = false;
+				for(Species spec : species){
+					if( spec.addNetworkIfSpeciesMatch(n) ) {
+						addedToExistingSpecies = true;
+						break;
+					}
+				}
+				if( !addedToExistingSpecies ) {
+					species.add(new Species(n));
+				}
+			}
+		}
 	}
 	
-	public void runAllGenerations(){
+	public NeuralNetwork runAllGenerations(){
 		double currentBestFitness = Double.MAX_VALUE;
 		for(long generationNumber = 0; ; generationNumber++){
 			runCurrentGeneration();
@@ -80,11 +116,13 @@ public class EvolutionOptimizer {
 			System.out.println("Most Fit Network in generation " + generationNumber + " has fitness level of: "
 					+ currentBestFitness);
 			networks.get(0).dumpNetwork();
-			if(currentBestFitness <= acceptableFitnessLevel){
+			if(currentBestFitness >= acceptableFitnessLevel){
 				break;
 			}
+			networks = nextGeneration;
 		}
 		networks.get(0).dumpNetwork();
+		return networks.get(0);
 	}
 	
 }

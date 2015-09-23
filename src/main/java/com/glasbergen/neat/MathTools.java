@@ -21,7 +21,7 @@ public class MathTools {
 
 	public static Double getRandDouble() {
 		//TODO: chosen arbitrary number for now so we don't get out of range
-		return getUniformCenteredAtZero() * 100000000.0; 
+		return (double) -50 + 100 * rand.nextDouble();
 	}
 	
 	public static <T> T getRandomElement(List<T> l){

@@ -43,6 +43,7 @@ public class NeuralNetwork {
 		for( int i = 0; i < numInputs; i++){
 			nodesInNetwork.add(new Node(i));
 		}
+		nodesInNetwork.add(NodeUtils.getBiasNode());
 		for( int i = 0; i < numOutputs; i++){
 			outputNodes.add(new Node(i));
 		}
@@ -144,6 +145,8 @@ public class NeuralNetwork {
 			for( Node dep : nodeDepends.keySet() ){
 				System.out.println("\t\tNode " + dep.getId() + ", weight: " + nodeDepends.get(dep));
 			}
+			System.out.println("\t\tBias Node, weight: " + node.getBiasWeight());
+			
 		}
 		System.out.println("Output Nodes:");
 		int i = 0;
@@ -153,6 +156,7 @@ public class NeuralNetwork {
 			for( Node dep : nodeDepends.keySet() ){
 				System.out.println("\t\tNode " + dep.getId() + ", weight: " + nodeDepends.get(dep));
 			}
+			System.out.println("\t\tBias Node, weight: " + node.getBiasWeight());
 		}
 	}
 
@@ -178,7 +182,7 @@ public class NeuralNetwork {
 		// Out node removes "old" connection
 		randOut.getAllDependencies().remove(n);
 		//Out node adds new connection to the new node with 1.0 weight
-		randOut.setDependency(newNode, 1.0);
+		randOut.setDependency(newNode, MathTools.getUniformCenteredAtZero());
 		nodesInNetwork.add(newNode);
 	}
 
@@ -206,11 +210,11 @@ public class NeuralNetwork {
 	private boolean tryCreateNewLinkTo(Iterator<Node> possibleTargets) {
 		while( possibleTargets.hasNext() ){
 			Node nodeToLinkTo = possibleTargets.next();
-			if( nodeToLinkTo.getAllDependencies().keySet().size() == nodesInNetwork.size() ){
+			if( nodeToLinkTo.getAllDependencies().keySet().size() == nodesInNetwork.size() -1 ){
 				continue;
 			} else {
 				for( Node n : nodesInNetwork ){
-					if( !nodeToLinkTo.getAllDependencies().containsKey(n) ){
+					if( nodeToLinkTo.getId() != n.getId() && !nodeToLinkTo.getAllDependencies().containsKey(n) ){
 						nodeToLinkTo.setDependency(n, MathTools.getRandDouble());
 						return true;
 					}
@@ -419,7 +423,7 @@ public class NeuralNetwork {
 	}
 
 	/**
-	 * Performing crippling attempt to duplicate a NeuralNetwork
+	 * Performance crippling attempt to duplicate a NeuralNetwork
 	 * @return
 	 */
 	public NeuralNetwork cloneNetwork() {
@@ -439,14 +443,14 @@ public class NeuralNetwork {
 		}
 		for( int i = numInputs-1; i < nodesInNetwork.size(); i++ ){
 			for(Node depNode : nodesInNetwork.get(i).getAllDependencies().keySet() ) {
-				Node theirNodeCopy = findEquivalentNode( newNetwork.nodesInNetwork, depNode );
-				newNetwork.nodesInNetwork.get(i).setDependency(theirNodeCopy, nodesInNetwork.get(i).getAllDependencies().get(depNode));
+					Node theirNodeCopy = findEquivalentNode( newNetwork.nodesInNetwork, depNode );
+					newNetwork.nodesInNetwork.get(i).setDependency(theirNodeCopy, nodesInNetwork.get(i).getAllDependencies().get(depNode));
 			}
 		}
 		for( int i = 0; i < numOutputs; i++ ){
 			for(Node depNode : outputNodes.get(i).getAllDependencies().keySet()){
-				Node theirNodeCopy = findEquivalentNode(newNetwork.nodesInNetwork, depNode);
-				newNetwork.outputNodes.get(i).setDependency(theirNodeCopy, outputNodes.get(i).getAllDependencies().get(depNode));
+					Node theirNodeCopy = findEquivalentNode(newNetwork.nodesInNetwork, depNode);
+					newNetwork.outputNodes.get(i).setDependency(theirNodeCopy, outputNodes.get(i).getAllDependencies().get(depNode));
 			}
 		}
 		newNetwork.setSpecies(species);

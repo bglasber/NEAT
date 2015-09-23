@@ -7,17 +7,17 @@ public class Neat {
 		double inputs[][] = new double[4][2];
 		double expectedOutputs[][] = new double[4][1];
 		//XOR
-		inputs[0][0] = 1;
-		inputs[0][1] = 1;
+		inputs[0][0] = 0;
+		inputs[0][1] = 0;
 		expectedOutputs[0][0] = 0;
-		inputs[1][0] = 1;
-		inputs[1][1] = 0;
+		inputs[1][0] = 0;
+		inputs[1][1] = 1;
 		expectedOutputs[1][0] = 1;
 		inputs[2][0] = 1;
 		inputs[2][1] = 0;
 		expectedOutputs[2][0] = 1;
-		inputs[3][0] = 0;
-		inputs[3][1] = 0;
+		inputs[3][0] = 1;
+		inputs[3][1] = 1;
 		expectedOutputs[3][0] = 0;
 		TestCases tc = new TestCases(inputs, expectedOutputs);
 		FitnessFunction func = new FitnessFunction() {
@@ -31,8 +31,16 @@ public class Neat {
 				return fitness;
 			}
 		};
-		EvolutionOptimizer optimizer = new EvolutionOptimizer(tc, func, 0.05);
-		optimizer.runAllGenerations();
+		EvolutionOptimizer optimizer = new EvolutionOptimizer(tc, func, 14.5);
+		NeuralNetwork output = optimizer.runAllGenerations();
+		double[] outputs = output.propagate2(new double[]{ 0, 0 });
+		System.out.println("XOR 0 0 -> " + outputs[0]);
+		outputs = output.propagate2(new double[]{ 0, 1 });
+		System.out.println("XOR 0 1 -> " + outputs[0]);
+		outputs = output.propagate2(new double[]{ 1, 0 });
+		System.out.println("XOR 1 0 -> " + outputs[0]);
+		outputs = output.propagate2(new double[]{ 1, 1 });
+		System.out.println("XOR 1 1 -> " + outputs[0]);
 	}
 
 }

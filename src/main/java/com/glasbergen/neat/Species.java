@@ -6,9 +6,9 @@ import java.util.List;
 public class Species {
 
 	private static final double speciesDifferenceThreshold = 3.0;
-	private static final double weightDifferenceConstant = 0;
+	private static final double weightDifferenceConstant = 0.4;
 	private static final double disjointConstant = 1;
-	private static final double excessConstant = 0.4;
+	private static final double excessConstant = 1;
 	private List<NeuralNetwork> networksInSpecies;
 	private int numNetworksInSpecies;
 	private NeuralNetwork mostFitSpecimen;
@@ -53,6 +53,10 @@ public class Species {
 		int numGenes = neuralNetwork.getNumGenes();
 		int numGenes2 = networkToAdd.getNumGenes();
 		numGenes = numGenes < numGenes2 ? numGenes : numGenes2;
+		//Don't bother for small genomes
+		if( numGenes < 20 ){
+			numGenes = 1;
+		}
 		int excessGenes = neuralNetwork.getNumExcessGenes(networkToAdd);
 		int disjointGenes = neuralNetwork.getNumDisjointGenes(networkToAdd);
 		double averageWeightDifferences = neuralNetwork.computeAverageWeightDifferences(networkToAdd);
@@ -92,5 +96,13 @@ public class Species {
 			bestFitnessValueThusFar = fitness;
 		}
 		
+	}
+
+	public List<NeuralNetwork> breedAll(NeuralNetwork n) {
+		List<NeuralNetwork> children = new LinkedList<>();
+		for( NeuralNetwork network : networksInSpecies ){
+			children.add( n.crossOver(network) );
+		}
+		return children;
 	}
 }

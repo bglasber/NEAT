@@ -30,6 +30,7 @@ public class Node {
 	private int id;
 	private double result;
 	private Map<Node, Double> dependencies;
+	private double biasWeight = MathTools.getRandDouble();
 	
 	public Node(int id){
 		this.id = id;
@@ -52,6 +53,7 @@ public class Node {
 		for( Node n : dependencies.keySet() ){
 			result = result + n.getResult() * dependencies.get(n);
 		}
+		result = result + 1 * biasWeight;
 		result = MathTools.sigmoid(result);
 	}
 
@@ -67,14 +69,23 @@ public class Node {
 		for( Double d : dependencies.values() ){
 			//90% chance of being uniformly perturbed
 			if( MathTools.getPercent() <= 0.9 ){
-				d = d + MathTools.getUniformCenteredAtZero();
+				d = d + 20 * MathTools.getUniformCenteredAtZero();
 			} else {
 				d = d + MathTools.getRandDouble();
 			}	
-		}	
+		}
+		if( MathTools.getPercent() <= 0.9 ){
+			biasWeight = biasWeight + 20 * MathTools.getUniformCenteredAtZero();
+		} else {
+			biasWeight = biasWeight + MathTools.getRandDouble();
+		}
 	}
 
 	public int getId() {
 		return id;
+	}
+
+	public double getBiasWeight() {
+		return biasWeight;
 	}
 }
