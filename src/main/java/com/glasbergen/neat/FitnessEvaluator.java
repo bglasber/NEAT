@@ -7,10 +7,12 @@ import java.util.List;
 public class FitnessEvaluator {
 
 	private List<NeuralNetwork> networksToTest;
+	private FitnessFunction func;
 	
 	//TODO: extend to allow arbitrary functions for calculating error on a test case
-	public FitnessEvaluator(List<NeuralNetwork> networksToTest){
+	public FitnessEvaluator(List<NeuralNetwork> networksToTest, FitnessFunction fitnessFunction){
 		this.networksToTest = networksToTest;
+		func = fitnessFunction;
 	}
 	
 	public List<NeuralNetwork> rankAllNetworks(double[][] inputs, double[][] expectedOutputs){
@@ -21,7 +23,7 @@ public class FitnessEvaluator {
 			
 			@Override
 			public int compare(NeuralNetwork o1, NeuralNetwork o2) {
-				return Double.compare(o1.getFitness(), o2.getFitness());
+				return -Double.compare(o1.getFitness(), o2.getFitness());
 			}
 		};
 		Collections.sort(networksToTest, networkComparator);
@@ -35,7 +37,7 @@ public class FitnessEvaluator {
 	 * @param expectedOutputs
 	 * @return
 	 */
-	public static double evaluateFitness(NeuralNetwork nn, double[][] inputs, double[][] expectedOutputs){
+	public double evaluateFitness(NeuralNetwork nn, double[][] inputs, double[][] expectedOutputs){
 		int numTestCases = inputs.length;
 		double totalError = 0;
 		for( int testCase = 0; testCase < numTestCases; testCase++){
@@ -48,8 +50,11 @@ public class FitnessEvaluator {
 			//TODO: do we scale the mean squared error here?
 			totalError += errorOnThisTestCase;
 		}
+		
 		totalError = totalError / numTestCases;
-		nn.setFitness(totalError);
-		return totalError;
+		double fitness = func.eval(totalError, nn.getSpecies().getNumNetworksInSpecies());
+		nn.setFitness(fitness);
+		return fitness;
 	}
+
 }

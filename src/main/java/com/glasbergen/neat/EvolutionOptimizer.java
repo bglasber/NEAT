@@ -9,13 +9,24 @@ public class EvolutionOptimizer {
 	private List<NeuralNetwork> networks;
 	private TestCases testCases;
 	private double acceptableFitnessLevel;
+	private List<Species> species;
+	private static final int populationSize = 150;
+	private FitnessFunction func;
 	
-	public EvolutionOptimizer(TestCases tc, double acceptableFitnessLevel){
+	public EvolutionOptimizer(TestCases tc, FitnessFunction func, double acceptableFitnessLevel){
 		networks = new LinkedList<>();
 		testCases = tc;
+		this.func = func;
 		this.acceptableFitnessLevel = acceptableFitnessLevel;
-		for(int i = 0; i < 50; i++){
-			networks.add(new NeuralNetwork(testCases.getNumInputs(), testCases.getNumOutputs()));
+		species = new LinkedList<>();
+		for(int i = 0; i < 300; i++){
+			NeuralNetwork nn = new NeuralNetwork(testCases.getNumInputs(), testCases.getNumOutputs());	
+			if( i == 0 ) {
+				species.add(new Species(nn));
+			} else {
+				species.get(0).addNetworkIfSpeciesMatch(nn);
+			}
+			networks.add(nn);
 		}
 		for( int i = 0; i < testCases.getNumInputs(); i++){
 			NodeUtils.getNextId();
@@ -23,14 +34,14 @@ public class EvolutionOptimizer {
 	}
 	
 	public void runCurrentGeneration(){
-		FitnessEvaluator eval = new FitnessEvaluator(networks);
+		FitnessEvaluator eval = new FitnessEvaluator(networks, func);
 		networks = eval.rankAllNetworks(testCases.getInputs(), testCases.getExpectedOutputs());
 		Iterator<NeuralNetwork> it = networks.iterator();
 		List<NeuralNetwork> nextGeneration = new LinkedList<>();
 		//TODO:  Need to generate crossovers, do perturbance, calculate descendants, etc.
-		for(int i = 0; i < 10; i++){
-			NeuralNetwork network = it.next();
-			nextGeneration.add(network);
+		// 25% of surviving networks are permutations
+		for( int i = 0; i < populationSize * 0.25; i++ ){
+			NeuralNetwork network = it.next().cloneNetwork();	
 			if( MathTools.getPercent() <= 0.03 ){
 				network.addNewNode();
 			} else if( MathTools.getPercent() <= 0.05 ){
@@ -41,7 +52,23 @@ public class EvolutionOptimizer {
 			}
 			nextGeneration.add(network);
 		}
-		networks = nextGeneration;
+		for(Species spec : species){
+			// Most fit network in a species of greater than 5 goes to the next round, unchanged
+			if( spec.getNumNetworksInSpecies() > 5 ){
+				NeuralNetwork network = spec.getMostFitNetwork();
+				nextGeneration.add( network.cloneNetwork() );
+			}
+		}
+		
+		//Breed species until we hit this cap
+		while( nextGeneration.size() < populationSize ){
+			//Iterate over ranked networks, roll dice to see if I crossover with another species
+			//Else breed with everything in my species
+		}
+		
+		//Wipe out all old species, redivide everything into new species
+		//Speciate()
+		
 		
 	}
 	

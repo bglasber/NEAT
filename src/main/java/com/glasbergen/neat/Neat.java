@@ -20,7 +20,18 @@ public class Neat {
 		inputs[3][1] = 0;
 		expectedOutputs[3][0] = 0;
 		TestCases tc = new TestCases(inputs, expectedOutputs);
-		EvolutionOptimizer optimizer = new EvolutionOptimizer(tc, 0.05);
+		FitnessFunction func = new FitnessFunction() {
+			
+			@Override
+			public double eval(double totalError, int numberInSpecies) {
+				// f(x,N) = (4 - x)^2 / N
+				double fitness = (4 - totalError);
+				fitness = fitness * fitness;
+				fitness = fitness / numberInSpecies;
+				return fitness;
+			}
+		};
+		EvolutionOptimizer optimizer = new EvolutionOptimizer(tc, func, 0.05);
 		optimizer.runAllGenerations();
 	}
 

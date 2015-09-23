@@ -13,6 +13,7 @@ public class NeuralNetwork {
 	private List<Node> nodesInNetwork;
 	private List<Node> outputNodes;
 	private double fitness;
+	private Species species;
 	
 	public NeuralNetwork(int numInputs, int numOutputs){
 		nodesInNetwork = new LinkedList<>();
@@ -122,8 +123,9 @@ public class NeuralNetwork {
 		
 	}
 
-	public void setFitness(double totalError) {
-		this.fitness = totalError;
+	public void setFitness(double fitness) {
+		this.fitness = fitness;
+		species.rememberIfBest(this, fitness);
 	}
 	
 	public double getFitness(){
@@ -379,5 +381,107 @@ public class NeuralNetwork {
 				}
 			}
 		}
+	}
+	
+	private void averageWeightDifferences(Iterator<Node> moreFitIter, Iterator<Node> lessFitIter) {
+		while( moreFitIter.hasNext() && lessFitIter.hasNext() ){
+			Node myNode = moreFitIter.next();
+			Node theirNode = lessFitIter.next();
+			while( myNode.getId() != theirNode.getId() ){
+				if( myNode.getId() < theirNode.getId() ){
+					if( !moreFitIter.hasNext() ){
+						return;
+					}
+					myNode = moreFitIter.next();
+				} else { 
+					if( !lessFitIter.hasNext() ){
+						return;
+					}
+					theirNode = lessFitIter.next();
+				}
+			}
+			Set<Node> myDepends = myNode.getAllDependencies().keySet();
+			for( Node n : myDepends ){
+				if( theirNode.getAllDependencies().containsKey(n) ){
+					double averageResult = (myNode.getAllDependencies().get(n) + theirNode.getAllDependencies().get(n)) / 2 ;
+					myNode.setDependency(n, averageResult);
+				}
+			}
+		}
+	}
+	
+	public void setSpecies(Species spec){
+		this.species = spec;
+	}
+
+	public Species getSpecies() {
+		return species;
+	}
+
+	/**
+	 * Performing crippling attempt to duplicate a NeuralNetwork
+	 * @return
+	 */
+	public NeuralNetwork cloneNetwork() {
+		//Create a new object that is a clone of the old
+		NeuralNetwork newNetwork = new NeuralNetwork(numInputs, numOutputs);
+		
+		//Clear existing connections
+		for( Node n : newNetwork.outputNodes ){
+			n.getAllDependencies().clear();
+		}
+		int ind = 0;
+		for(Node n : nodesInNetwork){
+			if( ind++ < numInputs ){
+				continue;
+			}
+			newNetwork.nodesInNetwork.add(new Node(n.getId()));
+		}
+		for( int i = numInputs-1; i < nodesInNetwork.size(); i++ ){
+			for(Node depNode : nodesInNetwork.get(i).getAllDependencies().keySet() ) {
+				Node theirNodeCopy = findEquivalentNode( newNetwork.nodesInNetwork, depNode );
+				newNetwork.nodesInNetwork.get(i).setDependency(theirNodeCopy, nodesInNetwork.get(i).getAllDependencies().get(depNode));
+			}
+		}
+		for( int i = 0; i < numOutputs; i++ ){
+			for(Node depNode : outputNodes.get(i).getAllDependencies().keySet()){
+				Node theirNodeCopy = findEquivalentNode(newNetwork.nodesInNetwork, depNode);
+				newNetwork.outputNodes.get(i).setDependency(theirNodeCopy, outputNodes.get(i).getAllDependencies().get(depNode));
+			}
+		}
+		newNetwork.setSpecies(species);
+		return newNetwork;
+	}
+	
+	/**
+	 * "Breed" two networks
+	 * Averages the connections that they do share, all other connections come from more fit network
+	 * Precondition: Network fitnesses must be set
+	 * TODO: 25% chance to copy over "broken links"
+	 * @param other
+	 * @return
+	 */
+	public NeuralNetwork crossOver(NeuralNetwork other){
+		NeuralNetwork moreFit = this.getFitness() > other.getFitness() ? this : other;
+		NeuralNetwork lessFit = this.getFitness() < other.getFitness() ? this : other;
+		moreFit = moreFit.cloneNetwork(); //don't clobber old network
+		Iterator<Node> moreFitIterator = moreFit.nodesInNetwork.iterator();
+		Iterator<Node> lessFitIterator = lessFit.nodesInNetwork.iterator();
+		averageWeightDifferences(moreFitIterator, lessFitIterator);
+		moreFitIterator = moreFit.outputNodes.iterator();
+		lessFitIterator = lessFit.outputNodes.iterator();
+		averageWeightDifferences(moreFitIterator, lessFitIterator);
+		return moreFit;
+	}
+
+	//TODO: this will likely be a performance bottleneck
+	//TODO: keep hashmap of nodes to easily find them
+	private Node findEquivalentNode(List<Node> nodesInNetwork2, Node depNode) {
+		for(Node n : nodesInNetwork2 ){
+			if( n.getId() == depNode.getId() ){
+				return n;
+			}
+		}
+		return null;
 	}
 }

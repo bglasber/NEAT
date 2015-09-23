@@ -5,6 +5,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.CoreMatchers.equalTo;
 import java.util.List;
 import java.util.Map;
+import static org.hamcrest.CoreMatchers.not;
 
 import org.junit.Test;
 
@@ -61,6 +62,28 @@ public class MutationTest {
 		assertThat(addedNode.getAllDependencies().size(), equalTo(2));
 		assertThat(network.getOutputNodes().get(0).getAllDependencies().size(), equalTo(2));
 		
+	}
+	
+	@Test
+	public void testAverageWeightsInCrossover(){
+		NeuralNetwork network = new NeuralNetwork(1, 1, new double[]{2.0});
+		NeuralNetwork other = new NeuralNetwork(1, 1, new double[]{1.0});
+		network.setFitness(1.0);
+		NeuralNetwork child = network.crossOver(other);
+		assertThat( child, not(equalTo(network)) );
+		assertThat( child, not(equalTo(other)) );
+		assertThat( child.getOutputNodes().get(0).getAllDependencies().values().iterator().next(), equalTo(1.5));	
+	}
+	
+	@Test
+	public void maintainMoreFitNetworkStructure(){
+		NeuralNetwork network = new NeuralNetwork(1, 1, new double[]{2.0});
+		NeuralNetwork other = new NeuralNetwork(1, 1, new double[]{1.0});
+		NodeUtils.getNextId();
+		network.addNewNode();
+		network.setFitness(1.0);
+		NeuralNetwork child = network.crossOver(other);
+		assertThat( child.getNetworkNodes().size(), equalTo(2) );
 	}
 
 }
