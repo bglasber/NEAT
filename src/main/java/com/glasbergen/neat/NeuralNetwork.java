@@ -385,7 +385,7 @@ public class NeuralNetwork {
 		}
 	}
 	
-	private void averageWeightDifferences(Iterator<Node> moreFitIter, Iterator<Node> lessFitIter) {
+	private void chooseFromMatchingGenes(Iterator<Node> moreFitIter, Iterator<Node> lessFitIter) {
 		while( moreFitIter.hasNext() && lessFitIter.hasNext() ){
 			Node myNode = moreFitIter.next();
 			Node theirNode = lessFitIter.next();
@@ -405,8 +405,9 @@ public class NeuralNetwork {
 			Set<Node> myDepends = myNode.getAllDependencies().keySet();
 			for( Node n : myDepends ){
 				if( theirNode.getAllDependencies().containsKey(n) ){
-					double averageResult = (myNode.getAllDependencies().get(n) + theirNode.getAllDependencies().get(n)) / 2 ;
-					myNode.setDependency(n, averageResult);
+					if( MathTools.getPercent() < 0.5 ){
+						myNode.setDependency(n, theirNode.getAllDependencies().get(n));
+					}
 				}
 			}
 		}
@@ -469,10 +470,10 @@ public class NeuralNetwork {
 		moreFit = moreFit.cloneNetwork(); //don't clobber old network
 		Iterator<Node> moreFitIterator = moreFit.nodesInNetwork.iterator();
 		Iterator<Node> lessFitIterator = lessFit.nodesInNetwork.iterator();
-		averageWeightDifferences(moreFitIterator, lessFitIterator);
+		chooseFromMatchingGenes(moreFitIterator, lessFitIterator);
 		moreFitIterator = moreFit.outputNodes.iterator();
 		lessFitIterator = lessFit.outputNodes.iterator();
-		averageWeightDifferences(moreFitIterator, lessFitIterator);
+		chooseFromMatchingGenes(moreFitIterator, lessFitIterator);
 		return moreFit;
 	}
 
