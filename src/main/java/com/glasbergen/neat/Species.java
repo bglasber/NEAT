@@ -12,7 +12,10 @@ public class Species {
 	private List<NeuralNetwork> networksInSpecies;
 	private int numNetworksInSpecies;
 	private NeuralNetwork mostFitSpecimen;
-	private double bestFitnessValueThusFar = 0;
+	private double bestFitnessThisRound = 0;
+	private double bestFitnessThusFar = 0;
+	//TODO: Implement this
+	private int stagnantRounds = 0;
 	
 	/**
 	 * A species is defined by one network, all others in this species
@@ -33,13 +36,17 @@ public class Species {
 	 * @return boolean indicating whether it was added
 	 */
 	public boolean addNetworkIfSpeciesMatch(NeuralNetwork networkToAdd){
-		if(computeSimilarity(networksInSpecies.get(0), networkToAdd) < speciesDifferenceThreshold){
+		if(isMatchingSpecies(networkToAdd)){
 			networksInSpecies.add(networkToAdd);
 			numNetworksInSpecies++;
 			networkToAdd.setSpecies(this);
 			return true;
 		}
 		return false;
+	}
+
+	public boolean isMatchingSpecies(NeuralNetwork networkToAdd) {
+		return computeSimilarity(networksInSpecies.get(0), networkToAdd) < speciesDifferenceThreshold;
 	}
 	
 	/**
@@ -91,9 +98,9 @@ public class Species {
 	}
 
 	public void rememberIfBest(NeuralNetwork neuralNetwork, double fitness) {
-		if( fitness > bestFitnessValueThusFar ){
+		if( fitness > bestFitnessThisRound ){
 			mostFitSpecimen = neuralNetwork;
-			bestFitnessValueThusFar = fitness;
+			bestFitnessThisRound = fitness;
 		}
 		
 	}
@@ -104,5 +111,21 @@ public class Species {
 			children.add( n.crossOver(network) );
 		}
 		return children;
+	}
+	
+	public int getStagnantRounds(){
+		return stagnantRounds;
+	}
+	
+	public void setAsNewGenerationOfOldSpecies(Species oldSpec){
+		bestFitnessThusFar = oldSpec.bestFitnessThusFar;
+		stagnantRounds = oldSpec.stagnantRounds;
+		if( oldSpec.bestFitnessThisRound <= oldSpec.bestFitnessThusFar){
+			stagnantRounds++;
+		}
+	}
+
+	public void setStagnantRounds(int stagnantRounds) {
+		this.stagnantRounds = stagnantRounds;
 	}
 }

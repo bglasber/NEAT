@@ -8,7 +8,7 @@ public class MathTools {
 	private static Random rand = new Random();
 	
 	public static double sigmoid( double z ){
-		return 1 / (1 + Math.exp(-z));
+		return 1 / (1 + Math.exp(-4.9*z));
 	}
 	
 	public static double getUniformCenteredAtZero(){

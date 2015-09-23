@@ -46,17 +46,24 @@ public class EvolutionOptimizer {
 	public void runCurrentGeneration(){
 		FitnessEvaluator eval = new FitnessEvaluator(networks, func);
 		networks = eval.rankAllNetworks(testCases.getInputs(), testCases.getExpectedOutputs());
+		NeuralNetwork net = getNeuralNetworkWithBestUnscaledFitness(networks);
 		Iterator<NeuralNetwork> it = networks.iterator();
 		nextGeneration = new LinkedList<>();
 		//TODO:  Need to generate crossovers, do perturbance, calculate descendants, etc.
 		// 25% of surviving networks are permutations
-		for( int i = 0; i < populationSize * 0.25; i++ ){
+		while(nextGeneration.size() < populationSize * 0.25){
+			if( !it.hasNext() ){
+				break;
+			}
 			NeuralNetwork orig = it.next();
+			//Don't reuse if this network has stagnated
+			if( orig.getSpeciesStagnantRounds() >= 15 ){
+				continue;
+			}
 			NeuralNetwork network = orig.cloneNetwork();
-			if( MathTools.getPercent() <= 0.3 ){
+			if( MathTools.getPercent() <= 0.05 ){
 				network.addNewLink();
-			} 
-			if( MathTools.getPercent() <= 0.2 ){
+			} else if( MathTools.getPercent() <= 0.03 ){
 				network.addNewNode();
 			} 
 			if( MathTools.getPercent() <= 0.8 ){
@@ -66,10 +73,13 @@ public class EvolutionOptimizer {
 		}
 		for(Species spec : species){
 			// Most fit network in a species of greater than 5 goes to the next round, unchanged
-			//if( spec.getNumNetworksInSpecies() > 5 ){
+			if( spec.getStagnantRounds() >= 15 ){
+				continue;
+			}
+			if( spec.getNumNetworksInSpecies() > 5 ){
 				NeuralNetwork network = spec.getMostFitNetwork();
 				nextGeneration.add( network.cloneNetwork() );
-			//}
+			}
 		}
 		
 		it = networks.iterator();
@@ -83,46 +93,74 @@ public class EvolutionOptimizer {
 			} else {
 				//Intraspecies!
 				NeuralNetwork n = it.next();
+				if( n.getSpeciesStagnantRounds() >= 15 ){
+					continue;
+				}
 				nextGeneration.addAll( n.getSpecies().breedAll( n ) );
 				
 			}
 		}
-		species.clear();
+		List<Species> newSpecies = new LinkedList<>();
 		boolean first = true;
 		for( NeuralNetwork n : nextGeneration ){
 			if( first ) {
-				species.add(new Species(n));
+				Species newSpec = new Species(n);
+				for(Species oldSpec : species){
+					if(oldSpec.isMatchingSpecies(n)){
+						newSpec.setAsNewGenerationOfOldSpecies(oldSpec);
+					}
+				}
+				newSpecies.add(newSpec);
+				
 				first = false;
 			} else {
 				boolean addedToExistingSpecies = false;
-				for(Species spec : species){
+				for(Species spec : newSpecies){
 					if( spec.addNetworkIfSpeciesMatch(n) ) {
 						addedToExistingSpecies = true;
 						break;
 					}
 				}
 				if( !addedToExistingSpecies ) {
-					species.add(new Species(n));
+					Species newSpec = new Species(n);
+					newSpecies.add(newSpec);
+					for(Species oldSpec : species){
+						if(oldSpec.isMatchingSpecies(n)){
+							newSpec.setAsNewGenerationOfOldSpecies(oldSpec);
+						}
+					}
 				}
 			}
 		}
+		species.clear();
+		species = newSpecies;
 	}
 	
 	public NeuralNetwork runAllGenerations(){
-		double currentBestFitness = Double.MAX_VALUE;
 		for(long generationNumber = 0; ; generationNumber++){
 			runCurrentGeneration();
-			currentBestFitness = networks.get(0).getFitness();
+			NeuralNetwork best = getNeuralNetworkWithBestUnscaledFitness(networks);
 			System.out.println("Most Fit Network in generation " + generationNumber + " has fitness level of: "
-					+ currentBestFitness);
-			networks.get(0).dumpNetwork();
-			if(currentBestFitness >= acceptableFitnessLevel){
-				break;
+					+ best.getUnscaledFitness());
+			best.dumpNetwork();
+			if(best.getUnscaledFitness() >= acceptableFitnessLevel || nextGeneration.size() == 0 ){
+				return best;
 			}
 			networks = nextGeneration;
 		}
-		networks.get(0).dumpNetwork();
-		return networks.get(0);
+	}
+
+	private NeuralNetwork getNeuralNetworkWithBestUnscaledFitness(List<NeuralNetwork> networks) {
+		double currentBest = 0;
+		NeuralNetwork currentBestNetwork = null;
+		for( NeuralNetwork network : networks ){
+			if( network.getUnscaledFitness() > currentBest ){
+				currentBestNetwork = network;
+				currentBest = network.getUnscaledFitness();
+			}
+		}
+		return currentBestNetwork;
+		
 	}
 	
 }

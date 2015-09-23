@@ -17,6 +17,13 @@ public class FitnessEvaluatorTest {
 			fitness = fitness / numberInSpecies;
 			return fitness;
 		}
+
+		@Override
+		public double evalUnscaled(double totalError) {
+			double fitness = (4 - totalError);
+			fitness = fitness * fitness;
+			return fitness;
+		}
 	};
 	/**
 	 * Test fitness of a simple 1x1 neural network

@@ -53,6 +53,7 @@ public class FitnessEvaluator {
 		
 		totalError = totalError / numTestCases;
 		double fitness = func.eval(totalError, nn.getSpecies().getNumNetworksInSpecies());
+		nn.setUnscaledFitness(func.evalUnscaled(totalError));
 		nn.setFitness(fitness);
 		return fitness;
 	}

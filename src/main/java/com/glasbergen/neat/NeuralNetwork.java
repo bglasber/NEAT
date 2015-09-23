@@ -14,6 +14,7 @@ public class NeuralNetwork {
 	private List<Node> outputNodes;
 	private double fitness;
 	private Species species;
+	private double unscaledFitness;
 	
 	public NeuralNetwork(int numInputs, int numOutputs){
 		nodesInNetwork = new LinkedList<>();
@@ -138,6 +139,8 @@ public class NeuralNetwork {
 	 */
 	public void dumpNetwork() {
 		System.out.println("Network Fitness: " + fitness);
+		System.out.println("Unscaled Fitness: " + unscaledFitness);
+		System.out.println("Stagnant Rounds: " + species.getStagnantRounds());
 		System.out.println("Network Dependencies: ");
 		for(Node node: nodesInNetwork){
 			System.out.println("\tNode " + node.getId() + " Dependencies:");
@@ -145,7 +148,7 @@ public class NeuralNetwork {
 			for( Node dep : nodeDepends.keySet() ){
 				System.out.println("\t\tNode " + dep.getId() + ", weight: " + nodeDepends.get(dep));
 			}
-			System.out.println("\t\tBias Node, weight: " + node.getBiasWeight());
+
 			
 		}
 		System.out.println("Output Nodes:");
@@ -156,7 +159,6 @@ public class NeuralNetwork {
 			for( Node dep : nodeDepends.keySet() ){
 				System.out.println("\t\tNode " + dep.getId() + ", weight: " + nodeDepends.get(dep));
 			}
-			System.out.println("\t\tBias Node, weight: " + node.getBiasWeight());
 		}
 	}
 
@@ -210,16 +212,12 @@ public class NeuralNetwork {
 	private boolean tryCreateNewLinkTo(Iterator<Node> possibleTargets) {
 		while( possibleTargets.hasNext() ){
 			Node nodeToLinkTo = possibleTargets.next();
-			if( nodeToLinkTo.getAllDependencies().keySet().size() == nodesInNetwork.size() -1 ){
-				continue;
-			} else {
-				for( Node n : nodesInNetwork ){
-					if( nodeToLinkTo.getId() != n.getId() && !nodeToLinkTo.getAllDependencies().containsKey(n) ){
-						nodeToLinkTo.setDependency(n, MathTools.getRandDouble());
-						return true;
-					}
+			for( Node n : nodesInNetwork ){
+				if( nodeToLinkTo.getId() > n.getId() && !nodeToLinkTo.getAllDependencies().containsKey(n) ){
+					nodeToLinkTo.setDependency(n, MathTools.getRandDouble());
+					return true;
 				}
-			}		
+			}	
 		}
 		return false;
 	}
@@ -487,5 +485,18 @@ public class NeuralNetwork {
 			}
 		}
 		return null;
+	}
+
+	public int getSpeciesStagnantRounds() {
+		return species.getStagnantRounds();
+	}
+
+	public void setUnscaledFitness(double unscaled) {
+		unscaledFitness = unscaled;
+		
+	}
+
+	public double getUnscaledFitness() {
+		return unscaledFitness;
 	}
 }
