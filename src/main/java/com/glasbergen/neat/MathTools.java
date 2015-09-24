@@ -12,7 +12,8 @@ public class MathTools {
 	}
 	
 	public static double getUniformCenteredAtZero(){
-		return 2 * rand.nextDouble() -1;
+		//return 2 * rand.nextDouble() -1;
+		return getRandDouble();
 	}
 	
 	public static double getPercent(){
@@ -21,7 +22,7 @@ public class MathTools {
 
 	public static Double getRandDouble() {
 		//TODO: chosen arbitrary number for now so we don't get out of range
-		return (double) -50 + 100 * rand.nextDouble();
+		return (double) -500 + 1000 * rand.nextDouble();
 	}
 	
 	public static <T> T getRandomElement(List<T> l){

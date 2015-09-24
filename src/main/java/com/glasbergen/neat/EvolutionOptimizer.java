@@ -61,9 +61,10 @@ public class EvolutionOptimizer {
 				continue;
 			}
 			NeuralNetwork network = orig.cloneNetwork();
-			if( MathTools.getPercent() <= 0.05 ){
+			if( MathTools.getPercent() <= 0.03 ){
 				network.addNewLink();
-			} else if( MathTools.getPercent() <= 0.03 ){
+			} 
+			if( MathTools.getPercent() <= 0.05 ){
 				network.addNewNode();
 			} 
 			if( MathTools.getPercent() <= 0.8 ){
@@ -88,8 +89,18 @@ public class EvolutionOptimizer {
 			if( !it.hasNext() ) {
 				break;
 			}
-			if( MathTools.getPercent() < 0.003 ){
+			if( MathTools.getPercent() < 0.001 ){
 				//Interspecies!
+				NeuralNetwork n = it.next();
+				if( n.getSpeciesStagnantRounds() >= 15 ){
+					continue;
+				}
+				for(Species spec : species){
+					if( !spec.equals(n.getSpecies()) ){
+						nextGeneration.addAll(spec.breedAll(n));
+						break;
+					}
+				}
 			} else {
 				//Intraspecies!
 				NeuralNetwork n = it.next();

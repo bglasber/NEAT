@@ -1,5 +1,8 @@
 package com.glasbergen.neat;
 
+import java.util.LinkedList;
+import java.util.List;
+
 public class Neat {
 
 	public static void main(String[] args) {
@@ -44,14 +47,19 @@ public class Neat {
 		};
 		EvolutionOptimizer optimizer = new EvolutionOptimizer(tc, func, 15.9);
 		NeuralNetwork output = optimizer.runAllGenerations();
-		double[] outputs = output.propagate2(new double[]{ 0, 0 });
+		double[] outputs = output.propagate2(new double[]{ 0, 0, 1 });
 		System.out.println("XOR 0 0 -> " + outputs[0]);
-		outputs = output.propagate2(new double[]{ 0, 1 });
+		outputs = output.propagate2(new double[]{ 0, 1, 1 });
 		System.out.println("XOR 0 1 -> " + outputs[0]);
-		outputs = output.propagate2(new double[]{ 1, 0 });
+		outputs = output.propagate2(new double[]{ 1, 0, 1 });
 		System.out.println("XOR 1 0 -> " + outputs[0]);
-		outputs = output.propagate2(new double[]{ 1, 1 });
+		outputs = output.propagate2(new double[]{ 1, 1, 1 });
 		System.out.println("XOR 1 1 -> " + outputs[0]);
+		List<NeuralNetwork> net = new LinkedList<>();
+		net.add(output);
+		FitnessEvaluator eval = new FitnessEvaluator(net, func);
+		eval.evaluateFitness(output, inputs, expectedOutputs);
+		System.out.println("Fitness: " + output.getUnscaledFitness());
 	}
 
 }

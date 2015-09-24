@@ -67,7 +67,7 @@ public class Node {
 		for( Double d : dependencies.values() ){
 			//90% chance of being uniformly perturbed
 			if( MathTools.getPercent() <= 0.9 ){
-				d = d + 20 * MathTools.getUniformCenteredAtZero();
+				d = d + MathTools.getUniformCenteredAtZero();
 			} else {
 				d = MathTools.getRandDouble();
 			}	
