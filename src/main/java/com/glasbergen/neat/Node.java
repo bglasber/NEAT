@@ -78,4 +78,8 @@ public class Node {
 		return id;
 	}
 
+	public void removeDependency(Node n) {
+		dependencies.remove(n);
+	}
+
 }

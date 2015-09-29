@@ -1,5 +1,6 @@
 package com.glasbergen.neat;
 
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -386,9 +387,11 @@ public class NeuralNetwork {
 	}
 	
 	private void chooseFromMatchingGenes(Iterator<Node> moreFitIter, Iterator<Node> lessFitIter) {
+		Set<Node> lessFitSeenNodes = new HashSet<>();
 		while( moreFitIter.hasNext() && lessFitIter.hasNext() ){
 			Node myNode = moreFitIter.next();
 			Node theirNode = lessFitIter.next();
+			lessFitSeenNodes.add(theirNode);
 			while( myNode.getId() != theirNode.getId() ){
 				if( myNode.getId() < theirNode.getId() ){
 					if( !moreFitIter.hasNext() ){
@@ -400,15 +403,25 @@ public class NeuralNetwork {
 						return;
 					}
 					theirNode = lessFitIter.next();
+					lessFitSeenNodes.add(theirNode);
 				}
 			}
 			Set<Node> myDepends = myNode.getAllDependencies().keySet();
+			List<Node> dependsToRemove = new LinkedList<>();
 			for( Node n : myDepends ){
 				if( theirNode.getAllDependencies().containsKey(n) ){
 					if( MathTools.getPercent() < 0.5 ){
 						myNode.setDependency(n, theirNode.getAllDependencies().get(n));
 					}
+				//They have the dependency node, but no link
+				} else if( lessFitSeenNodes.contains(n) ){
+					if( MathTools.getPercent() < 0.75 ){
+						dependsToRemove.add(n);
+					}
 				}
+			}
+			for( Node dep : dependsToRemove ){
+				myNode.removeDependency(dep);
 			}
 		}
 	}
@@ -460,7 +473,6 @@ public class NeuralNetwork {
 	 * "Breed" two networks
 	 * Averages the connections that they do share, all other connections come from more fit network
 	 * Precondition: Network fitnesses must be set
-	 * TODO: 25% chance to copy over "broken links"
 	 * @param other
 	 * @return
 	 */

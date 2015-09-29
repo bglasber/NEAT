@@ -63,8 +63,7 @@ public class EvolutionOptimizer {
 			NeuralNetwork network = orig.cloneNetwork();
 			if( MathTools.getPercent() <= 0.03 ){
 				network.addNewLink();
-			} 
-			if( MathTools.getPercent() <= 0.05 ){
+			} else if( MathTools.getPercent() <= 0.05 ){
 				network.addNewNode();
 			} 
 			if( MathTools.getPercent() <= 0.8 ){
