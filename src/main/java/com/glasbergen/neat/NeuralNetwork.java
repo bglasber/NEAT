@@ -15,7 +15,7 @@ public class NeuralNetwork {
 	private List<Node> outputNodes;
 	private double fitness;
 	private Species species;
-	private double unscaledFitness;
+	private double solutionFitness;
 	
 	public NeuralNetwork(int numInputs, int numOutputs){
 		nodesInNetwork = new LinkedList<>();
@@ -139,7 +139,7 @@ public class NeuralNetwork {
 	 */
 	public void dumpNetwork() {
 		System.out.println("Network Fitness: " + fitness);
-		System.out.println("Unscaled Fitness: " + unscaledFitness);
+		System.out.println("Solution Fitness: " + solutionFitness);
 		System.out.println("Stagnant Rounds: " + species.getStagnantRounds());
 		System.out.println("Network Dependencies: ");
 		for(Node node: nodesInNetwork){
@@ -503,12 +503,11 @@ public class NeuralNetwork {
 		return species.getStagnantRounds();
 	}
 
-	public void setUnscaledFitness(double unscaled) {
-		unscaledFitness = unscaled;
-		
+	public void setSolutionFitness(double solFit) {
+		solutionFitness = solFit;
 	}
 
-	public double getUnscaledFitness() {
-		return unscaledFitness;
+	public double getSolutionFitness() {
+		return solutionFitness;
 	}
 }

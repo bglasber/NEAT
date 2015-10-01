@@ -40,11 +40,15 @@ public class FitnessEvaluator {
 	public double evaluateFitness(NeuralNetwork nn, double[][] inputs, double[][] expectedOutputs){
 		int numTestCases = inputs.length;
 		double totalError = 0;
+		double hypError = 0;
 		for( int testCase = 0; testCase < numTestCases; testCase++){
 			double errorOnThisTestCase = 0;
 			double actual[] = nn.propagate2(inputs[testCase]);
 			for( int i = 0; i < actual.length; i++ ){
 				double error = ( expectedOutputs[testCase][i] - actual[i] );
+				double adjustedOut = (actual[i]) >= 0.5 ? 1 : 0;
+				adjustedOut = ( expectedOutputs[testCase][i] - adjustedOut );
+				hypError += adjustedOut * adjustedOut;
 				errorOnThisTestCase += error * error;
 			}
 			//TODO: do we scale the mean squared error here?
@@ -53,7 +57,7 @@ public class FitnessEvaluator {
 		
 		//totalError = totalError / numTestCases;
 		double fitness = func.eval(totalError, nn.getSpecies().getNumNetworksInSpecies());
-		nn.setUnscaledFitness(func.evalUnscaled(totalError));
+		nn.setSolutionFitness(func.evalUnscaled(hypError));
 		nn.setFitness(fitness);
 		return fitness;
 	}

@@ -65,7 +65,7 @@ public class Xor {
 		net.add(output);
 		FitnessEvaluator eval = new FitnessEvaluator(net, func);
 		eval.evaluateFitness(output, inputs, expectedOutputs);
-		System.out.println("Fitness: " + output.getUnscaledFitness());
+		System.out.println("Fitness: " + output.getSolutionFitness());
 	}
 
 }

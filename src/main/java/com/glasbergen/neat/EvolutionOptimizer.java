@@ -45,7 +45,7 @@ public class EvolutionOptimizer {
 	public void runCurrentGeneration(){
 		FitnessEvaluator eval = new FitnessEvaluator(networks, func);
 		networks = eval.rankAllNetworks(testCases.getInputs(), testCases.getExpectedOutputs());
-		NeuralNetwork net = getNeuralNetworkWithBestUnscaledFitness(networks);
+		NeuralNetwork net = getNeuralNetworkWithBestSolutionFitness(networks);
 		Iterator<NeuralNetwork> it = networks.iterator();
 		nextGeneration = new LinkedList<>();
 		//TODO:  Need to generate crossovers, do perturbance, calculate descendants, etc.
@@ -148,24 +148,24 @@ public class EvolutionOptimizer {
 	public NeuralNetwork runAllGenerations(){
 		for(long generationNumber = 0; ; generationNumber++){
 			runCurrentGeneration();
-			NeuralNetwork best = getNeuralNetworkWithBestUnscaledFitness(networks);
+			NeuralNetwork best = getNeuralNetworkWithBestSolutionFitness(networks);
 			System.out.println("Most Fit Network in generation " + generationNumber + " has fitness level of: "
-					+ best.getUnscaledFitness());
+					+ best.getSolutionFitness());
 			best.dumpNetwork();
-			if(best.getUnscaledFitness() >= acceptableFitnessLevel || nextGeneration.size() == 0 ){
+			if(best.getSolutionFitness() >= acceptableFitnessLevel || nextGeneration.size() == 0 ){
 				return best;
 			}
 			networks = nextGeneration;
 		}
 	}
 
-	private NeuralNetwork getNeuralNetworkWithBestUnscaledFitness(List<NeuralNetwork> networks) {
+	private NeuralNetwork getNeuralNetworkWithBestSolutionFitness(List<NeuralNetwork> networks) {
 		double currentBest = 0;
 		NeuralNetwork currentBestNetwork = null;
 		for( NeuralNetwork network : networks ){
-			if( network.getUnscaledFitness() > currentBest ){
+			if( network.getSolutionFitness() > currentBest ){
 				currentBestNetwork = network;
-				currentBest = network.getUnscaledFitness();
+				currentBest = network.getSolutionFitness();
 			}
 		}
 		return currentBestNetwork;
