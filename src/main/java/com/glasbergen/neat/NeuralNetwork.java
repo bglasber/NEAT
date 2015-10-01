@@ -45,7 +45,6 @@ public class NeuralNetwork {
 		for( int i = 0; i < numInputs; i++){
 			nodesInNetwork.add(new Node(i));
 		}
-		nodesInNetwork.add(NodeUtils.getBiasNode());
 		for( int i = 0; i < numOutputs; i++){
 			outputNodes.add(new Node(i));
 		}

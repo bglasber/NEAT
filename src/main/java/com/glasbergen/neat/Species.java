@@ -5,10 +5,6 @@ import java.util.List;
 
 public class Species {
 
-	private static final double speciesDifferenceThreshold = 3.0;
-	private static final double weightDifferenceConstant = 0.4;
-	private static final double disjointConstant = 1;
-	private static final double excessConstant = 1;
 	private List<NeuralNetwork> networksInSpecies;
 	private int numNetworksInSpecies;
 	private NeuralNetwork mostFitSpecimen;
@@ -46,7 +42,8 @@ public class Species {
 	}
 
 	public boolean isMatchingSpecies(NeuralNetwork networkToAdd) {
-		return computeSimilarity(networksInSpecies.get(0), networkToAdd) < speciesDifferenceThreshold;
+		return computeSimilarity(networksInSpecies.get(0), networkToAdd) < 
+				NeatParameters.SPECIES_DIFFERENCE_THRESHOLD;
 	}
 	
 	/**
@@ -61,14 +58,15 @@ public class Species {
 		int numGenes2 = networkToAdd.getNumGenes();
 		numGenes = numGenes < numGenes2 ? numGenes : numGenes2;
 		//Don't bother for small genomes
-		if( numGenes < 20 ){
+		if( numGenes < NeatParameters.SMALL_GENOME_CUTOFF ){
 			numGenes = 1;
 		}
 		int excessGenes = neuralNetwork.getNumExcessGenes(networkToAdd);
 		int disjointGenes = neuralNetwork.getNumDisjointGenes(networkToAdd);
 		double averageWeightDifferences = neuralNetwork.computeAverageWeightDifferences(networkToAdd);
-		return (excessGenes * excessConstant / numGenes) + (disjointGenes * disjointConstant / numGenes )
-				+ weightDifferenceConstant * averageWeightDifferences;
+		return (excessGenes * NeatParameters.EXCESS_CONSTANT / numGenes) + 
+				(disjointGenes * NeatParameters.DISJOINT_CONSTANT / numGenes ) +
+				NeatParameters.WEIGHT_DIFFERENCE_CONSTANT * averageWeightDifferences;
 	}
 
 	/**

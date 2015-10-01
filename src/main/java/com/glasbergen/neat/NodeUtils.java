@@ -12,10 +12,4 @@ public class NodeUtils {
 	public static int getNextId(){
 		return id++;
 	}
-
-	public static Node getBiasNode() {
-		Node bias = new Node(-1);
-		bias.setResult(1);
-		return bias;
-	}
 }

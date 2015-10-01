@@ -11,7 +11,6 @@ public class EvolutionOptimizer {
 	private TestCases testCases;
 	private double acceptableFitnessLevel;
 	private List<Species> species;
-	private static final int populationSize = 150;
 	private FitnessFunction func;
 	
 	public EvolutionOptimizer(TestCases tc, FitnessFunction func, double acceptableFitnessLevel){
@@ -51,32 +50,32 @@ public class EvolutionOptimizer {
 		nextGeneration = new LinkedList<>();
 		//TODO:  Need to generate crossovers, do perturbance, calculate descendants, etc.
 		// 25% of surviving networks are permutations
-		while(nextGeneration.size() < populationSize * 0.25){
+		while(nextGeneration.size() < NeatParameters.POPULATION_SIZE * NeatParameters.UNBRED_CONTENDER_RATE ){
 			if( !it.hasNext() ){
 				break;
 			}
 			NeuralNetwork orig = it.next();
 			//Don't reuse if this network has stagnated
-			if( orig.getSpeciesStagnantRounds() >= 15 ){
+			if( orig.getSpeciesStagnantRounds() >= NeatParameters.STAGNATION_ROUNDS ){
 				continue;
 			}
 			NeuralNetwork network = orig.cloneNetwork();
-			if( MathTools.getPercent() <= 0.03 ){
+			if( MathTools.getPercent() <= NeatParameters.NEW_LINK_RATE ){
 				network.addNewLink();
-			} else if( MathTools.getPercent() <= 0.05 ){
+			} if( MathTools.getPercent() <= NeatParameters.NEW_NODE_RATE ){
 				network.addNewNode();
 			} 
-			if( MathTools.getPercent() <= 0.8 ){
+			if( MathTools.getPercent() <= NeatParameters.WEIGHT_MUTATION_RATE ){
 				network.perturb();
 			}
 			nextGeneration.add(network);
 		}
 		for(Species spec : species){
 			// Most fit network in a species of greater than 5 goes to the next round, unchanged
-			if( spec.getStagnantRounds() >= 15 ){
+			if( spec.getStagnantRounds() >= NeatParameters.STAGNATION_ROUNDS ){
 				continue;
 			}
-			if( spec.getNumNetworksInSpecies() > 5 ){
+			if( spec.getNumNetworksInSpecies() > NeatParameters.POPULATION_SIZE_TO_REMAIN_UNCHANGED ){
 				NeuralNetwork network = spec.getMostFitNetwork();
 				nextGeneration.add( network.cloneNetwork() );
 			}
@@ -84,14 +83,14 @@ public class EvolutionOptimizer {
 		
 		it = networks.iterator();
 		//Breed species until we hit this cap
-		while( nextGeneration.size() < populationSize ){
+		while( nextGeneration.size() < NeatParameters.POPULATION_SIZE ){
 			if( !it.hasNext() ) {
 				break;
 			}
-			if( MathTools.getPercent() < 0.001 ){
+			if( MathTools.getPercent() < NeatParameters.INTERSPECIES_BREEDING_RATE ){
 				//Interspecies!
 				NeuralNetwork n = it.next();
-				if( n.getSpeciesStagnantRounds() >= 15 ){
+				if( n.getSpeciesStagnantRounds() >= NeatParameters.STAGNATION_ROUNDS ){
 					continue;
 				}
 				for(Species spec : species){
@@ -103,7 +102,7 @@ public class EvolutionOptimizer {
 			} else {
 				//Intraspecies!
 				NeuralNetwork n = it.next();
-				if( n.getSpeciesStagnantRounds() >= 15 ){
+				if( n.getSpeciesStagnantRounds() >= NeatParameters.STAGNATION_ROUNDS ){
 					continue;
 				}
 				nextGeneration.addAll( n.getSpecies().breedAll( n ) );
