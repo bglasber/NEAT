@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Random;
 
 public class MathTools {
+	private static final double MUTATION_POWER = 10;
 
 	private static Random rand = new Random();
 	
@@ -22,7 +23,7 @@ public class MathTools {
 
 	public static Double getRandDouble() {
 		//TODO: chosen arbitrary number for now so we don't get out of range
-		return (double) -500 + 1000 * rand.nextDouble();
+		return (double) -MUTATION_POWER + MUTATION_POWER * 2 * rand.nextDouble();
 	}
 	
 	public static <T> T getRandomElement(List<T> l){
