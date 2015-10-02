@@ -351,7 +351,7 @@ public class NeuralNetwork {
 		theirNodeIterator = networkToAdd.getOutputNodes().iterator();
 		computeWeightedDifferences(ourNodeIterator, theirNodeIterator, result);
 		if( result.totalNumberOfEntries == 0 ){
-			return Double.MAX_VALUE;
+			return 0;
 		}
 		return result.summedSquaredWeights / result.totalNumberOfEntries;
 	}

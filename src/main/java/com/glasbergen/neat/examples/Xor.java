@@ -3,8 +3,8 @@ package com.glasbergen.neat.examples;
 import java.util.LinkedList;
 import java.util.List;
 
-import com.glasbergen.neat.EvolutionOptimizer;
-import com.glasbergen.neat.FitnessEvaluator;
+import com.glasbergen.neat.TestCaseOptimizer;
+import com.glasbergen.neat.TestCaseFitnessEvaluator;
 import com.glasbergen.neat.FitnessFunction;
 import com.glasbergen.neat.NeuralNetwork;
 import com.glasbergen.neat.TestCases;
@@ -51,8 +51,8 @@ public class Xor {
 				return fitness;
 			}
 		};
-		EvolutionOptimizer optimizer = new EvolutionOptimizer(tc, func, 15.9);
-		NeuralNetwork output = optimizer.runAllGenerations();
+		TestCaseOptimizer optimizer = new TestCaseOptimizer(tc, func);
+		NeuralNetwork output = optimizer.runAllGenerations(15.9);
 		double[] outputs = output.propagate2(new double[]{ 0, 0, 1 });
 		System.out.println("XOR 0 0 -> " + outputs[0]);
 		outputs = output.propagate2(new double[]{ 0, 1, 1 });
@@ -63,7 +63,7 @@ public class Xor {
 		System.out.println("XOR 1 1 -> " + outputs[0]);
 		List<NeuralNetwork> net = new LinkedList<>();
 		net.add(output);
-		FitnessEvaluator eval = new FitnessEvaluator(net, func);
+		TestCaseFitnessEvaluator eval = new TestCaseFitnessEvaluator(net, tc, func);
 		eval.evaluateFitness(output, inputs, expectedOutputs);
 		System.out.println("Fitness: " + output.getSolutionFitness());
 	}

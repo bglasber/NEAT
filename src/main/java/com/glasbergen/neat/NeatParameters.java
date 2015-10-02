@@ -9,7 +9,7 @@ public class NeatParameters {
 	public static double NEW_LINK_RATE = 0.05;
 	public static double POPULATION_SIZE_TO_REMAIN_UNCHANGED = 5;
 	public static double INTERSPECIES_BREEDING_RATE = 0.001;
-	public static double MUTATION_POWER = 10;
+	public static double MUTATION_POWER = 2.5;
 	public static double SIGMOID_MULTIPLIER = 4.9;
 	public static double SPECIES_DIFFERENCE_THRESHOLD = 3.0;
 	public static double WEIGHT_DIFFERENCE_CONSTANT = 0.4;

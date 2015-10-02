@@ -31,12 +31,13 @@ public class FitnessEvaluatorTest {
 	@Test
 	public void testSimpleFitness(){
 		NeuralNetwork nn = new NeuralNetwork(1, 1, new double[]{ 1000.0 });
-		FitnessEvaluator evaluator = new FitnessEvaluator(null, func);
 		Species spec = new Species(nn);
 		double inputs[][] = new double[1][1];
 		inputs[0][0] = 1;
 		double expectedOutputs[][] = new double[1][1];
 		expectedOutputs[0][0] = 1;
+		TestCases tc = new TestCases(inputs, expectedOutputs);
+		TestCaseFitnessEvaluator evaluator = new TestCaseFitnessEvaluator(null, tc, func);
 		assertThat(evaluator.evaluateFitness(nn, inputs, expectedOutputs), equalTo(func.eval(0.0, 1)));
 	}
 	
@@ -46,12 +47,13 @@ public class FitnessEvaluatorTest {
 	@Test
 	public void testBasicErrorCalcs(){
 		NeuralNetwork nn = new NeuralNetwork(1, 1, new double[]{ 1000 });
-		FitnessEvaluator evaluator = new FitnessEvaluator(null, func);
 		Species spec = new Species(nn);
 		double inputs[][] = new double[1][1];
 		inputs[0][0] = 1;
 		double expectedOutputs[][] = new double[1][1];
 		expectedOutputs[0][0] = 0;
+		TestCases tc = new TestCases(inputs, expectedOutputs);
+		TestCaseFitnessEvaluator evaluator = new TestCaseFitnessEvaluator(null, tc, func);
 		assertThat(evaluator.evaluateFitness(nn, inputs, expectedOutputs), equalTo(func.eval(1.0, 1)));
 	}
 	
@@ -61,7 +63,7 @@ public class FitnessEvaluatorTest {
 	@Test
 	public void testAverageError(){
 		NeuralNetwork nn = new NeuralNetwork(2, 1, new double[]{ 1000, 1000 });
-		FitnessEvaluator evaluator = new FitnessEvaluator(null, func);
+		
 		Species spec = new Species(nn);
 		double inputs[][] = new double[4][2];
 		double expectedOutputs[][] = new double[4][1];
@@ -78,6 +80,8 @@ public class FitnessEvaluatorTest {
 		inputs[3][0] = 0;
 		inputs[3][1] = 0;
 		expectedOutputs[3][0] = 0;
+		TestCases tc = new TestCases(inputs, expectedOutputs);
+		TestCaseFitnessEvaluator evaluator = new TestCaseFitnessEvaluator(null, tc, func);
 		assertThat(evaluator.evaluateFitness(nn, inputs, expectedOutputs), equalTo(func.eval(1.25, 1)));
 	}
 	
@@ -87,13 +91,14 @@ public class FitnessEvaluatorTest {
 	@Test
 	public void testAllOutputErrorConsidered(){
 		NeuralNetwork nn = new NeuralNetwork(1, 2, new double[]{ 1000, 1000 });
-		FitnessEvaluator evaluator = new FitnessEvaluator(null, func);
 		Species spec = new Species(nn);
 		double inputs[][] = new double[1][1];
 		double expectedOutputs[][] = new double[1][2];
 		inputs[0][0] = 1;
 		expectedOutputs[0][0] = 0;
 		expectedOutputs[0][1] = 0;
+		TestCases tc = new TestCases(inputs, expectedOutputs);
+		TestCaseFitnessEvaluator evaluator = new TestCaseFitnessEvaluator(null, tc, func);
 		assertThat(evaluator.evaluateFitness(nn, inputs, expectedOutputs), equalTo(func.eval(2.0,1)));
 	}
 }

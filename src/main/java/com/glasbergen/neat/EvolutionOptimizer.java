@@ -4,23 +4,25 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
-public class EvolutionOptimizer {
-
-	private List<NeuralNetwork> networks;
-	private List<NeuralNetwork> nextGeneration;
-	private TestCases testCases;
-	private double acceptableFitnessLevel;
-	private List<Species> species;
-	private FitnessFunction func;
+public abstract class EvolutionOptimizer {
+	protected List<Species> species;
+	protected List<NeuralNetwork> networks;
+	protected List<NeuralNetwork> nextGeneration;
 	
-	public EvolutionOptimizer(TestCases tc, FitnessFunction func, double acceptableFitnessLevel){
-		networks = new LinkedList<>();
-		testCases = tc;
-		this.func = func;
-		this.acceptableFitnessLevel = acceptableFitnessLevel;
+	public EvolutionOptimizer(){
 		species = new LinkedList<>();
-		for(int i = 0; i < 300; i++){
-			NeuralNetwork nn = new NeuralNetwork(testCases.getNumInputs(), testCases.getNumOutputs());	
+		networks = new LinkedList<>();
+	}
+	
+	/**
+	 * Construct the initial set of neural networks with
+	 * the provided number of inputs and outputs
+	 * @param numInputs
+	 * @param numOutputs
+	 */
+	public void initializeNetworks(int numInputs, int numOutputs){
+		for(int i = 0; i < NeatParameters.POPULATION_SIZE; i++){
+			NeuralNetwork nn = new NeuralNetwork(numInputs, numOutputs);	
 			if( i == 0 ) {
 				species.add(new Species(nn));
 			} else {
@@ -37,19 +39,21 @@ public class EvolutionOptimizer {
 			}
 			networks.add(nn);
 		}
-		for( int i = 0; i < testCases.getNumInputs(); i++){
+		for( int i = 0; i < numInputs; i++){
 			NodeUtils.getNextId();
 		}
 	}
 	
-	public void runCurrentGeneration(){
-		FitnessEvaluator eval = new FitnessEvaluator(networks, func);
-		networks = eval.rankAllNetworks(testCases.getInputs(), testCases.getExpectedOutputs());
-		NeuralNetwork net = getNeuralNetworkWithBestSolutionFitness(networks);
-		Iterator<NeuralNetwork> it = networks.iterator();
-		nextGeneration = new LinkedList<>();
+	/**
+	 * Once we have ranked the networks in the current generation,
+	 * we call this to perform the necessary mutations to prepare the next generation
+	 */
+	public void mutate(){
+		
 		//TODO:  Need to generate crossovers, do perturbance, calculate descendants, etc.
 		// 25% of surviving networks are permutations
+		Iterator<NeuralNetwork> it = networks.iterator();
+		nextGeneration = new LinkedList<>();
 		while(nextGeneration.size() < NeatParameters.POPULATION_SIZE * NeatParameters.UNBRED_CONTENDER_RATE ){
 			if( !it.hasNext() ){
 				break;
@@ -145,16 +149,26 @@ public class EvolutionOptimizer {
 		species = newSpecies;
 	}
 	
-	public NeuralNetwork runAllGenerations(){
+	/**
+	 * Run generation after generation until we hit the fitness threshold,
+	 * or the next generation has no networks in it
+	 * 
+	 * @param fitnessThreshold
+	 * @return Network
+	 */
+	public NeuralNetwork runAllGenerations(double fitnessThreshold){
 		for(long generationNumber = 0; ; generationNumber++){
-			runCurrentGeneration();
-			NeuralNetwork best = getNeuralNetworkWithBestSolutionFitness(networks);
+			runCurrentGeneration(); //run generation
+			mutate(); // mutate
+			NeuralNetwork best = getNeuralNetworkWithBestSolutionFitness(networks); // dump best network
 			System.out.println("Most Fit Network in generation " + generationNumber + " has fitness level of: "
 					+ best.getSolutionFitness());
 			best.dumpNetwork();
-			if(best.getSolutionFitness() >= acceptableFitnessLevel || nextGeneration.size() == 0 ){
+			// break ?
+			if(best.getSolutionFitness() >= fitnessThreshold || nextGeneration.size() == 0 ){
 				return best;
 			}
+			// next round!
 			networks = nextGeneration;
 		}
 	}
@@ -171,5 +185,9 @@ public class EvolutionOptimizer {
 		return currentBestNetwork;
 		
 	}
-	
+	/** 
+	 * Run the current Generation of Networks and
+	 * rank them in some order of fitness
+	 */
+	public abstract void runCurrentGeneration();
 }
