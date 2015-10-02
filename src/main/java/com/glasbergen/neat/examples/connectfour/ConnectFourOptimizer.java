@@ -14,6 +14,8 @@ public class ConnectFourOptimizer extends EvolutionOptimizer {
 		//sort by number of wins
 		//On IllegalArgument, the machine loses. Pick at random to give the
 		//other machine something to play against
+		ConnectFourFitnessEvaluator eval = new ConnectFourFitnessEvaluator(networks);
+		eval.rankAllNetworks();
 	}
 
 }

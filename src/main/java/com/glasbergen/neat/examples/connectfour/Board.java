@@ -97,10 +97,10 @@ public class Board {
 		return false;
 	}
 
-	public int[] boardStateToInputVector(Colour myColour){
+	public double[] boardStateToInputVector(Colour myColour){
 		//Each Node has 3 states - RED or not, BLACK or not, Open or not
 		//+1 for Bias
-		int[] input = new int[6*7*3+1];
+		double[] input = new double[6*7*3+1];
 		int curInd = 0;
 		for( int i = 0; i < 6; i++ ){
 			for( int j = 0; j < 7; j++ ){
