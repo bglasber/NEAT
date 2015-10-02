@@ -140,7 +140,7 @@ public class NeuralNetwork {
 	public void dumpNetwork() {
 		System.out.println("Network Fitness: " + fitness);
 		System.out.println("Solution Fitness: " + solutionFitness);
-		System.out.println("Stagnant Rounds: " + species.getStagnantRounds());
+		//System.out.println("Stagnant Rounds: " + species.getStagnantRounds());
 		System.out.println("Network Dependencies: ");
 		for(Node node: nodesInNetwork){
 			System.out.println("\tNode " + node.getId() + " Dependencies:");
@@ -198,8 +198,8 @@ public class NeuralNetwork {
 		for(int i = 0; i < numInputs; i++){
 			hiddenLayerIterator.next();
 		}
-		if( !tryCreateNewLinkTo(hiddenLayerIterator) ) {
-			tryCreateNewLinkTo(outputNodes.iterator());
+		if( !tryCreateNewLinkTo(hiddenLayerIterator, true) ) {
+			tryCreateNewLinkTo(outputNodes.iterator(), false);
 		}
 	}
 
@@ -209,11 +209,11 @@ public class NeuralNetwork {
 	 * @param possibleTargets
 	 * @return
 	 */
-	private boolean tryCreateNewLinkTo(Iterator<Node> possibleTargets) {
+	private boolean tryCreateNewLinkTo(Iterator<Node> possibleTargets, boolean idCheck) {
 		while( possibleTargets.hasNext() ){
 			Node nodeToLinkTo = possibleTargets.next();
 			for( Node n : nodesInNetwork ){
-				if( nodeToLinkTo.getId() > n.getId() && !nodeToLinkTo.getAllDependencies().containsKey(n) ){
+				if( (!idCheck || nodeToLinkTo.getId() > n.getId()) && !nodeToLinkTo.getAllDependencies().containsKey(n) ){
 					nodeToLinkTo.setDependency(n, MathTools.getRandDouble());
 					return true;
 				}

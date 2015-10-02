@@ -38,7 +38,7 @@ public class SpeciesComparisonTests {
 		assertThat( nn2.getNumDisjointGenes(nn1), equalTo(2) );
 		Species species = new Species(nn1);
 		assertThat( species.computeSimilarity(nn1, nn1), equalTo(0.0) );
-		assertThat( species.computeSimilarity(nn1, nn2), equalTo(3.0) );
+		assertThat( species.computeSimilarity(nn2, nn1), equalTo(3.0));
 		species.addNetworkIfSpeciesMatch(nn2); // Shouldn't get added
 		assertThat( species.getNumNetworksInSpecies(), equalTo(1) );
 		NeuralNetwork nn3 = new NeuralNetwork(1, 1, new double[]{2.0});

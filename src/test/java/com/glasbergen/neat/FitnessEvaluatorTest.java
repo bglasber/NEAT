@@ -78,7 +78,7 @@ public class FitnessEvaluatorTest {
 		inputs[3][0] = 0;
 		inputs[3][1] = 0;
 		expectedOutputs[3][0] = 0;
-		assertThat(evaluator.evaluateFitness(nn, inputs, expectedOutputs), equalTo(func.eval(1.25 / 4, 1)));
+		assertThat(evaluator.evaluateFitness(nn, inputs, expectedOutputs), equalTo(func.eval(1.25, 1)));
 	}
 	
 	/**
