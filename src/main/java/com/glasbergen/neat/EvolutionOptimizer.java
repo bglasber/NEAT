@@ -14,6 +14,15 @@ public abstract class EvolutionOptimizer {
 		networks = new LinkedList<>();
 	}
 	
+	/** 
+	 * Runs the current generation of neural networks
+	 * <p>
+	 * Set this.networks to be the ranked list of neural networks
+	 * after running
+	 * </p>
+	 */
+	public abstract void runCurrentGeneration();
+	
 	/**
 	 * Construct the initial set of neural networks with
 	 * the provided number of inputs and outputs
@@ -48,7 +57,7 @@ public abstract class EvolutionOptimizer {
 	 * Once we have ranked the networks in the current generation,
 	 * we call this to perform the necessary mutations to prepare the next generation
 	 */
-	public void mutate(){
+	private void mutate(){
 		
 		//TODO:  Need to generate crossovers, do perturbance, calculate descendants, etc.
 		// 25% of surviving networks are permutations
@@ -185,9 +194,5 @@ public abstract class EvolutionOptimizer {
 		return currentBestNetwork;
 		
 	}
-	/** 
-	 * Run the current Generation of Networks and
-	 * rank them in some order of fitness
-	 */
-	public abstract void runCurrentGeneration();
+
 }

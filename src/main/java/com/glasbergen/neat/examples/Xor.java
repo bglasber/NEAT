@@ -36,7 +36,7 @@ public class Xor {
 		FitnessFunction func = new FitnessFunction() {
 			
 			@Override
-			public double eval(double totalError, int numberInSpecies) {
+			public double evalFitness(double totalError, int numberInSpecies) {
 				// f(x,N) = (4 - x)^2 / N
 				double fitness = (4 - totalError);
 				fitness = fitness * fitness;
@@ -45,7 +45,7 @@ public class Xor {
 			}
 
 			@Override
-			public double evalUnscaled(double totalError) {
+			public double evalSolutionFitness(double totalError) {
 				double fitness = (4 - totalError);
 				fitness = fitness * fitness;
 				return fitness;

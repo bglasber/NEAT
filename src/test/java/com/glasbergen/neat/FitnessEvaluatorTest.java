@@ -10,7 +10,7 @@ public class FitnessEvaluatorTest {
 	private FitnessFunction func = new FitnessFunction() {
 		
 		@Override
-		public double eval(double totalError, int numberInSpecies) {
+		public double evalFitness(double totalError, int numberInSpecies) {
 			// f(x,N) = (4 - x)^2 / N
 			double fitness = (4 - totalError);
 			fitness = fitness * fitness;
@@ -19,7 +19,7 @@ public class FitnessEvaluatorTest {
 		}
 
 		@Override
-		public double evalUnscaled(double totalError) {
+		public double evalSolutionFitness(double totalError) {
 			double fitness = (4 - totalError);
 			fitness = fitness * fitness;
 			return fitness;
@@ -38,7 +38,7 @@ public class FitnessEvaluatorTest {
 		expectedOutputs[0][0] = 1;
 		TestCases tc = new TestCases(inputs, expectedOutputs);
 		TestCaseFitnessEvaluator evaluator = new TestCaseFitnessEvaluator(null, tc, func);
-		assertThat(evaluator.evaluateFitness(nn, inputs, expectedOutputs), equalTo(func.eval(0.0, 1)));
+		assertThat(evaluator.evaluateFitness(nn, inputs, expectedOutputs), equalTo(func.evalFitness(0.0, 1)));
 	}
 	
 	/**
@@ -54,7 +54,7 @@ public class FitnessEvaluatorTest {
 		expectedOutputs[0][0] = 0;
 		TestCases tc = new TestCases(inputs, expectedOutputs);
 		TestCaseFitnessEvaluator evaluator = new TestCaseFitnessEvaluator(null, tc, func);
-		assertThat(evaluator.evaluateFitness(nn, inputs, expectedOutputs), equalTo(func.eval(1.0, 1)));
+		assertThat(evaluator.evaluateFitness(nn, inputs, expectedOutputs), equalTo(func.evalFitness(1.0, 1)));
 	}
 	
 	/**
@@ -82,7 +82,7 @@ public class FitnessEvaluatorTest {
 		expectedOutputs[3][0] = 0;
 		TestCases tc = new TestCases(inputs, expectedOutputs);
 		TestCaseFitnessEvaluator evaluator = new TestCaseFitnessEvaluator(null, tc, func);
-		assertThat(evaluator.evaluateFitness(nn, inputs, expectedOutputs), equalTo(func.eval(1.25, 1)));
+		assertThat(evaluator.evaluateFitness(nn, inputs, expectedOutputs), equalTo(func.evalFitness(1.25, 1)));
 	}
 	
 	/**
@@ -99,6 +99,6 @@ public class FitnessEvaluatorTest {
 		expectedOutputs[0][1] = 0;
 		TestCases tc = new TestCases(inputs, expectedOutputs);
 		TestCaseFitnessEvaluator evaluator = new TestCaseFitnessEvaluator(null, tc, func);
-		assertThat(evaluator.evaluateFitness(nn, inputs, expectedOutputs), equalTo(func.eval(2.0,1)));
+		assertThat(evaluator.evaluateFitness(nn, inputs, expectedOutputs), equalTo(func.evalFitness(2.0,1)));
 	}
 }

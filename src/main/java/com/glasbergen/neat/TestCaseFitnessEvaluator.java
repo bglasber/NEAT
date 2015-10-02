@@ -60,8 +60,8 @@ public class TestCaseFitnessEvaluator implements FitnessEvaluator{
 		}
 		
 		//totalError = totalError / numTestCases;
-		double fitness = func.eval(totalError, nn.getSpecies().getNumNetworksInSpecies());
-		nn.setSolutionFitness(func.evalUnscaled(hypError));
+		double fitness = func.evalFitness(totalError, nn.getSpecies().getNumNetworksInSpecies());
+		nn.setSolutionFitness(func.evalSolutionFitness(hypError));
 		nn.setFitness(fitness);
 		return fitness;
 	}

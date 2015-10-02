@@ -2,7 +2,7 @@ package com.glasbergen.neat;
 
 public interface FitnessFunction {
 
-	public double eval(double totalError, int numberInSpecies);
+	public double evalFitness(double totalError, int numberInSpecies);
 
-	public double evalUnscaled(double totalError);
+	public double evalSolutionFitness(double totalError);
 }
