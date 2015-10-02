@@ -1,10 +1,7 @@
 package com.glasbergen.neat;
 
-import java.util.List;
-
 public class TestCaseOptimizer extends EvolutionOptimizer {
 
-	private List<NeuralNetwork> nextGeneration;
 	private TestCases testCases;
 	private FitnessFunction func;
 	
