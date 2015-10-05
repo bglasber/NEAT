@@ -2,6 +2,7 @@ package com.glasbergen.neat.examples.connectfour;
 
 import java.util.Iterator;
 import java.util.List;
+import java.util.Random;
 
 import com.glasbergen.neat.FitnessEvaluator;
 import com.glasbergen.neat.NeuralNetwork;
@@ -15,21 +16,23 @@ public class ConnectFourFitnessEvaluator implements FitnessEvaluator{
 	}
 	@Override
 	public List<NeuralNetwork> rankAllNetworks() {
+		System.out.println("Number of networks: " + networksToTest.size());
 		Iterator<NeuralNetwork> iter = networksToTest.iterator();
 		while(iter.hasNext()){
 			NeuralNetwork net = iter.next();
 			Iterator<NeuralNetwork> opponentIter = networksToTest.iterator();
 			net.setFitness(0);
 			while(opponentIter.hasNext()){
-				if( playGame( net, opponentIter.next()) ){
+				if( playGame( net, opponentIter.next(), new Board()) ){
 					net.setFitness(net.getFitness()+1);
 				}
 			}
+			net.setSolutionFitness(net.getFitness());
+			net.setFitness(net.getFitness()/net.getSpecies().getNumNetworksInSpecies());
 		}
 		return networksToTest;
 	}
-	private boolean playGame(NeuralNetwork net, NeuralNetwork opp) {
-		Board b = new Board();
+	public static boolean playGame(NeuralNetwork net, NeuralNetwork opp, Board b) {
 		boolean madeIllegalMove = false;
 		boolean opponentMadeIllegalMove = false;
 		
@@ -60,10 +63,11 @@ public class ConnectFourFitnessEvaluator implements FitnessEvaluator{
 					}
 				} catch( IllegalArgumentException e ){
 					opponentMadeIllegalMove = true;
+					if( fallbackMove(b, Colour.RED) ){
+						return false;
+					}
 				}
-				if( fallbackMove(b, Colour.RED) ){
-					return false;
-				}
+
 			} else {
 				if( fallbackMove(b, Colour.RED) ){
 					return false;
@@ -77,8 +81,18 @@ public class ConnectFourFitnessEvaluator implements FitnessEvaluator{
 	 * @param b
 	 * @return shouldTerminate
 	 */
-	private boolean fallbackMove(Board b, Colour c) {
+	private static boolean fallbackMove(Board b, Colour c) {
 		boolean moveSucceeded = false;
+		Random r = new Random();
+		int tryCol = r.nextInt(6);
+		try {
+			if( b.addToBoard(tryCol, c) ){
+				return true;
+			}
+			return false;
+		} catch( IllegalArgumentException e ){
+			
+		}
 		for(int i = 0; i < 6; i++){
 			try {
 				if( b.addToBoard(i, c) ){
@@ -97,12 +111,12 @@ public class ConnectFourFitnessEvaluator implements FitnessEvaluator{
 		}
 		return false;
 	}
-	private boolean getNetworkNextMove(NeuralNetwork net, Board b, boolean madeIllegalMove, Colour c) {
+	private static boolean getNetworkNextMove(NeuralNetwork net, Board b, boolean madeIllegalMove, Colour c) {
 		double[] output = net.propagate2((double[] )b.boardStateToInputVector(c));
 		int mostConfidentColumn = getMaxIndex( output );
 		return b.addToBoard(mostConfidentColumn, c);
 	}
-	private int getMaxIndex(double[] output) {
+	private static int getMaxIndex(double[] output) {
 		// TODO Auto-generated method stub
 		double maxVal = 0;
 		int maxInd = 0;

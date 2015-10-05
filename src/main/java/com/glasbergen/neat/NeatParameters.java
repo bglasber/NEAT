@@ -1,6 +1,7 @@
 package com.glasbergen.neat;
 
 public class NeatParameters {
+	public static long MAX_GENERATIONS = Long.MAX_VALUE;
 	public static int POPULATION_SIZE = 150;
 	public static double WEIGHT_MUTATION_RATE = 0.8;
 	public static int STAGNATION_ROUNDS = 15;

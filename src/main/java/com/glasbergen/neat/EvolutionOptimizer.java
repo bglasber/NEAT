@@ -174,7 +174,7 @@ public abstract class EvolutionOptimizer {
 					+ best.getSolutionFitness());
 			best.dumpNetwork();
 			// break ?
-			if(best.getSolutionFitness() >= fitnessThreshold || nextGeneration.size() == 0 ){
+			if(best.getSolutionFitness() >= fitnessThreshold || generationNumber > NeatParameters.MAX_GENERATIONS ){
 				return best;
 			}
 			// next round!
@@ -183,7 +183,7 @@ public abstract class EvolutionOptimizer {
 	}
 
 	private NeuralNetwork getNeuralNetworkWithBestSolutionFitness(List<NeuralNetwork> networks) {
-		double currentBest = 0;
+		double currentBest = -1;
 		NeuralNetwork currentBestNetwork = null;
 		for( NeuralNetwork network : networks ){
 			if( network.getSolutionFitness() > currentBest ){

@@ -8,8 +8,8 @@ public class Species {
 	private List<NeuralNetwork> networksInSpecies;
 	private int numNetworksInSpecies;
 	private NeuralNetwork mostFitSpecimen;
-	private double bestFitnessThisRound = 0;
-	private double bestFitnessThusFar = 0;
+	private double bestFitnessThisRound = -1;
+	private double bestFitnessThusFar = -1;
 	//TODO: Implement this
 	private int stagnantRounds = 0;
 	

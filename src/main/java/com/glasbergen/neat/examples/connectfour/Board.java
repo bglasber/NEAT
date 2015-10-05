@@ -1,5 +1,7 @@
 package com.glasbergen.neat.examples.connectfour;
 
+import com.glasbergen.neat.Node;
+
 public class Board {
 	NodeState board[][];
 	
@@ -120,6 +122,28 @@ public class Board {
 
 	public NodeState colourToNodeColour(Colour c) {
 		return (c == Colour.BLACK) ? NodeState.BLACK : NodeState.RED;
+	}
+
+	public void dumpAsciiBoard() {
+		for( int i = 0; i < 6; i++ ){
+			for( int j = 0; j < 7; j++ ){
+				System.out.print("[");
+				System.out.print(getBoardChar(board[i][j]));
+				System.out.print("]");
+			}
+			System.out.print("\n");
+		}
+		
+	}
+
+	private char getBoardChar(NodeState nodeState) {
+		if( nodeState == NodeState.OPEN ){
+			return ' ';
+		} else if( nodeState == NodeState.BLACK ){
+			return 'x';
+		} else {
+			return 'o';
+		}
 	}
 	
 }
