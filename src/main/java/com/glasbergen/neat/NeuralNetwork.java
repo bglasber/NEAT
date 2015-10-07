@@ -1,11 +1,19 @@
 package com.glasbergen.neat;
 
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+import com.glasbergen.neat.io.JsonConstants;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 
 public class NeuralNetwork {
 
@@ -50,6 +58,59 @@ public class NeuralNetwork {
 		}
 		initializeDependencies(inputWeights);
 	}
+
+	/**
+	 * For Deserialization
+	 * @param obj
+	 */
+	public NeuralNetwork(JsonObject obj) {
+		this.numInputs = obj.get(JsonConstants.NUM_INPUTS).getAsInt();
+		this.numOutputs = obj.get(JsonConstants.NUM_OUTPUTS).getAsInt();
+		this.fitness = obj.get(JsonConstants.FITNESS).getAsDouble();
+		this.solutionFitness = obj.get(JsonConstants.SOLUTION_FITNESS).getAsDouble();
+		this.nodesInNetwork = new LinkedList<>();
+		int maxNetworkNodeId = obj.get(JsonConstants.MAX_NETWORK_NODE_ID).getAsInt();
+		Map<Integer, Node> addedNodes = new HashMap<>();
+		for(int i = 0; i <= maxNetworkNodeId; i++){
+			JsonElement el = obj.get(JsonConstants.networkNodeString(i));
+			if( el != null ){
+				JsonObject nodeObj = el.getAsJsonObject();
+				Node n = new Node(i);
+				nodesInNetwork.add(n);
+				addedNodes.put(i, n);
+				for( int j = 0; j < i; j++){
+					JsonElement dep = nodeObj.get(Integer.toString(j));
+					if( dep == null ){
+						continue;
+					} else {
+						n.setDependency(addedNodes.get(j), dep.getAsDouble());
+					}
+				}
+			} else {
+				continue;
+			}
+		}
+		outputNodes = new LinkedList<>();
+		for(int i = 0; i < this.numOutputs; i++){
+			JsonElement el = obj.get(JsonConstants.outputNodeString(i));
+			if( el != null ){
+				JsonObject nodeObj = el.getAsJsonObject();
+				Node n = new Node(i);
+				outputNodes.add(n);
+				for( int j = 0; j <= maxNetworkNodeId; j++ ){
+					JsonElement dep = nodeObj.get(Integer.toString(j));
+					if( dep == null ){
+						continue;
+					} else {
+						n.setDependency(addedNodes.get(j), dep.getAsDouble());
+					}
+				}
+			} else {
+				break;
+			}
+		}
+	}
+
 	/**
 	 * Initialize dependencies between nodes in a new neural network
 	 * Assumes the only nodes in nodesInNetwork are the inputs
@@ -65,7 +126,6 @@ public class NeuralNetwork {
 				outputNode.setDependency(inputNode, inputWeights[ind++]);
 			}
 		}
-		
 	}
 	
 	/**
@@ -509,5 +569,13 @@ public class NeuralNetwork {
 
 	public double getSolutionFitness() {
 		return solutionFitness;
+	}
+
+	public int getNumInputs() {
+		return numInputs;
+	}
+
+	public int getNumOutputs(){
+		return numOutputs;
 	}
 }
